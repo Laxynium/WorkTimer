@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkTimer.Console", "WorkTimer.Console\WorkTimer.Console.csproj", "{505F438F-190A-439F-B456-56DDB82D3364}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{505F438F-190A-439F-B456-56DDB82D3364}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{505F438F-190A-439F-B456-56DDB82D3364}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{505F438F-190A-439F-B456-56DDB82D3364}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{505F438F-190A-439F-B456-56DDB82D3364}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
