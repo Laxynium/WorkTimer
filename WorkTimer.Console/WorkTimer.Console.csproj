@@ -8,7 +8,14 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>worktimer</ToolCommandName>
+        <Version>1.0.3</Version>
+    </PropertyGroup>
+    
     <ItemGroup>
+      <PackageReference Include="SimpleExec" Version="11.0.0" />
       <PackageReference Include="Spectre.Console" Version="0.47.0" />
       <PackageReference Include="Spectre.Console.Cli" Version="0.47.0" />
       <PackageReference Include="System.Reactive" Version="6.0.0" />

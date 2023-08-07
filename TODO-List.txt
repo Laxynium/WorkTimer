@@ -1,0 +1,8 @@
+ - Add switch which will install the BurntToast pwsh module
+ - Improve handling the errors when command fails
+ - Refactor this try catch block
+ - Consider splitting it into separate objects
+ - Consider some abstraction which would help to send notification based on operating system
+   or more precisely on installed tools on machine
+ - Add github action which will create nuget, consider using nuke
+ - Think about dealing with versions, maybe use a semantic versioning, with nuke it should be quite simple 
