@@ -1,7 +1,12 @@
-﻿using System.Reactive.Concurrency;
-using System.Reactive.Linq;
+﻿using System.Reactive.Linq;
 using SimpleExec;
 using Spectre.Console;
+using WorkTimer.Console;
+
+var configuration = new WorkTimerModuleConfiguration();
+var workTimerModule = configuration.Create();
+
+await workTimerModule.AddTimerRun();
 
 var timeInMinutes = 90;
 if (args.Length >= 1)
@@ -9,25 +14,17 @@ if (args.Length >= 1)
     timeInMinutes = Convert.ToInt32(args[0]);
 }
 
-var timeInSeconds = timeInMinutes * 60;
-
-var countdownTimer = Observable
-    .Timer(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1))
-    .Take(timeInSeconds + 1)
-    .ObserveOn(Scheduler.Default);
-
+var timeLeft = TimeLeft.FromSeconds(3);
+var countdownTimer = workTimerModule.GetCountdownTimer(timeLeft);
 
 var counterView = AnsiConsole
     .Live(new FigletText(string.Empty).Centered().Color(Color.Blue))
     .StartAsync(async ctx =>
     {
         await countdownTimer
-            .Select(x => x)
-            .ForEachAsync(i =>
+            .ForEachAsync(t =>
             {
-                var minutes = (timeInSeconds - i) / 60;
-                var seconds = (timeInSeconds - i) % 60;
-                ctx.UpdateTarget(new FigletText($"{minutes:D2}:{seconds:D2}").Centered().Color(Color.Blue));
+                ctx.UpdateTarget(new FigletText($"{t}").Centered().Color(Color.Blue));
                 ctx.Refresh();
             });
     });

@@ -15,9 +15,15 @@
     </PropertyGroup>
     
     <ItemGroup>
+      <PackageReference Include="CSharpFunctionalExtensions" Version="2.40.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+      <PackageReference Include="NodaTime" Version="3.1.9" />
+      <PackageReference Include="NodaTime.Serialization.SystemTextJson" Version="1.0.0" />
       <PackageReference Include="SimpleExec" Version="11.0.0" />
       <PackageReference Include="Spectre.Console" Version="0.47.0" />
       <PackageReference Include="Spectre.Console.Cli" Version="0.47.0" />
+      <PackageReference Include="System.IO.Abstractions" Version="19.2.51" />
+      <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
       <PackageReference Include="System.Reactive" Version="6.0.0" />
       <PackageReference Include="System.Reactive.Linq" Version="6.0.0" />
     </ItemGroup>
