@@ -6,27 +6,11 @@ using WorkTimer.Console;
 var configuration = new WorkTimerModuleConfiguration();
 var workTimerModule = configuration.Create();
 
-var timeInMinutes = 90;
-if (args.Length >= 1)
-{
-    timeInMinutes = Convert.ToInt32(args[0]);
-}
+var parsedInput = ParsedInput.Parse(args);
 
-IReadOnlyDictionary<string, string> labels = new Dictionary<string, string>();
-if (args.Length >= 2)
-{
-    labels = new Dictionary<string, string>(args.Skip(1)
-        .Select(x =>
-        {
-            var split = x.Split("=");
-            return new KeyValuePair<string, string>(split[0], split[1]);
-        }));
-}
+await workTimerModule.AddTimerRun(parsedInput.Labels);
 
-await workTimerModule.AddTimerRun(labels);
-
-var timeLeft = TimeLeft.FromSeconds(timeInMinutes * 60);
-var countdownTimer = workTimerModule.GetCountdownTimer(timeLeft);
+var countdownTimer = workTimerModule.GetCountdownTimer(parsedInput.TimeLeft);
 
 var counterView = AnsiConsole
     .Live(new FigletText(string.Empty).Centered().Color(Color.Blue))
@@ -42,11 +26,11 @@ var counterView = AnsiConsole
 
 await counterView;
 
+var text = $"Your {parsedInput.TimeLeft} work time is up";
+
 AnsiConsole.Clear();
-var text = $"Your {timeInMinutes}m work time is up";
 AnsiConsole.Write(new FigletText(text).Centered().Color(Color.Green3));
 AnsiConsole.Write(new FigletText("Good job for your hard and dedicated work").Centered());
-
 
 try
 {

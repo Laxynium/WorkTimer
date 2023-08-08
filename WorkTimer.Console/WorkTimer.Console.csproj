@@ -22,6 +22,7 @@
       <PackageReference Include="SimpleExec" Version="11.0.0" />
       <PackageReference Include="Spectre.Console" Version="0.47.0" />
       <PackageReference Include="Spectre.Console.Cli" Version="0.47.0" />
+      <PackageReference Include="Superpower" Version="3.0.0" />
       <PackageReference Include="System.IO.Abstractions" Version="19.2.51" />
       <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
       <PackageReference Include="System.Reactive" Version="6.0.0" />
