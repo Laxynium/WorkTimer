@@ -16,4 +16,9 @@ public class TimerRun
         Timestamp = timestamp;
         Labels = labels;
     }
+
+    public void Complete()
+    {
+        
+    }
 }

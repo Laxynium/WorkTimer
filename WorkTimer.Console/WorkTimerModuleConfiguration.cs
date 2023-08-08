@@ -25,6 +25,8 @@ public class WorkTimerModuleConfiguration
         _services.AddSingleton<IClock>(SystemClock.Instance);
         _services.AddSingleton<TimerRunsStore>();
         _services.AddSingleton<WorkTimerModule>();
+
+        _services.AddSingleton<ScriptsHooks>();
     }
 
     public WorkTimerModule Create()

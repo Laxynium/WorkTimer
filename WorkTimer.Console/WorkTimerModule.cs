@@ -8,14 +8,16 @@ public class WorkTimerModule
 {
     private readonly TimerRunsStore _store;
     private readonly IClock _clock;
+    private readonly ScriptsHooks _scriptsesHooks;
 
-    public WorkTimerModule(TimerRunsStore store, IClock clock)
+    public WorkTimerModule(TimerRunsStore store, IClock clock, ScriptsHooks scriptsesHooks)
     {
         _store = store;
         _clock = clock;
+        _scriptsesHooks = scriptsesHooks;
     }
 
-    public async Task AddTimerRun(IReadOnlyDictionary<string, string>? labels = null)
+    public async Task<Guid> AddTimerRun(IReadOnlyDictionary<string, string>? labels = null)
     {
         labels ??= new Dictionary<string, string>();
 
@@ -23,7 +25,22 @@ public class WorkTimerModule
 
         var run = new TimerRun(Guid.NewGuid(), now, labels);
 
-        await _store.Save(run);
+        await _store.Add(run);
+
+        await _scriptsesHooks.InvokePreHooks(run);
+        
+        return run.Id;
+    }
+
+    public async Task CompleteTimerRun(Guid id)
+    {
+        var run = await _store.GetById(id);
+
+        run.Complete();
+
+        await _store.Update(run);
+        
+        await _scriptsesHooks.InvokePostHooks(run);
     }
 
     public IObservable<TimeLeft> GetCountdownTimer(TimeLeft timeLeft)

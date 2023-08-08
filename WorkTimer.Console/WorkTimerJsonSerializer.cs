@@ -11,6 +11,10 @@ public class WorkTimerJsonSerializer
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
 
+    public static string SerializeToStringAsync<T>(T content) =>
+        JsonSerializer.Serialize(content, options: Options);
+
+
     public static Task SerializeAsync<T>(Stream stream, T content) =>
         JsonSerializer.SerializeAsync(stream, content, options: Options);
 

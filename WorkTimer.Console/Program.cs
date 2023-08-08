@@ -8,7 +8,7 @@ var workTimerModule = configuration.Create();
 
 var parsedInput = ParsedInput.Parse(args);
 
-await workTimerModule.AddTimerRun(parsedInput.Labels);
+var runId = await workTimerModule.AddTimerRun(parsedInput.Labels);
 
 var countdownTimer = workTimerModule.GetCountdownTimer(parsedInput.TimeLeft);
 
@@ -25,6 +25,8 @@ var counterView = AnsiConsole
     });
 
 await counterView;
+
+await workTimerModule.CompleteTimerRun(runId);
 
 var text = $"Your {parsedInput.TimeLeft} work time is up";
 

@@ -12,15 +12,29 @@ public class TimerRunsStore
         _fileSystem = fileSystem;
     }
 
-    public async Task Save(TimerRun timerRun)
+    public async Task<TimerRun> GetById(Guid id)
     {
         await MakeSureStorageFileIsCreated();
 
         var content = await ReadFileContent();
 
-        content.Items.Add(timerRun);
+        return content.Items.Single(x => x.Id == id);
+    }
 
-        await WriteFileContent(content);
+    public async Task Add(TimerRun timerRun)
+    {
+        await MakeSureStorageFileIsCreated();
+
+        var runs = await ReadFileContent();
+
+        runs.Items.Add(timerRun);
+
+        await WriteFileContent(runs);
+    }
+
+    public Task Update(TimerRun timerRun)
+    {
+        return Task.CompletedTask;
     }
 
     private Task MakeSureStorageFileIsCreated() => Run(async fs =>
