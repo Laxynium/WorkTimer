@@ -32,9 +32,23 @@ public class TimerRunsStore
         await WriteFileContent(runs);
     }
 
-    public Task Update(TimerRun timerRun)
+    public async Task Update(TimerRun timerRun)
     {
-        return Task.CompletedTask;
+        await MakeSureStorageFileIsCreated();
+
+        var runs = await ReadFileContent();
+
+        var index = runs.Items.FindIndex(x => x.Id == timerRun.Id);
+        if (index == -1)
+        {
+            runs.Items.Add(timerRun);
+        }
+        else
+        {
+            runs.Items[index] = timerRun;
+        }
+
+        await WriteFileContent(runs);
     }
 
     private Task MakeSureStorageFileIsCreated() => Run(async fs =>

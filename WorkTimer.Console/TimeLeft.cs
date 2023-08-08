@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using NodaTime;
 using Superpower;
 
 namespace WorkTimer.Console;
@@ -57,6 +58,7 @@ public class TimeLeft : ValueObject
     }
 
     public int InSeconds => _value;
+    public Duration AsDuration => Duration.FromSeconds(InSeconds);
 
     public TimeLeft SubtractSeconds(long seconds) => FromSeconds(InSeconds - (int)seconds);
 

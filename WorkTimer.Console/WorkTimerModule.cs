@@ -17,18 +17,18 @@ public class WorkTimerModule
         _scriptsesHooks = scriptsesHooks;
     }
 
-    public async Task<Guid> AddTimerRun(IReadOnlyDictionary<string, string>? labels = null)
+    public async Task<Guid> AddTimerRun(TimeLeft timeLeft, IReadOnlyDictionary<string, string>? labels = null)
     {
         labels ??= new Dictionary<string, string>();
 
         var now = _clock.GetCurrentInstant();
 
-        var run = new TimerRun(Guid.NewGuid(), now, labels);
+        var run = new TimerRun(Guid.NewGuid(), timeLeft.AsDuration, now, labels);
 
         await _store.Add(run);
 
         await _scriptsesHooks.InvokePreHooks(run);
-        
+
         return run.Id;
     }
 
@@ -36,10 +36,12 @@ public class WorkTimerModule
     {
         var run = await _store.GetById(id);
 
-        run.Complete();
+        var now = _clock.GetCurrentInstant();
+
+        run.Complete(now);
 
         await _store.Update(run);
-        
+
         await _scriptsesHooks.InvokePostHooks(run);
     }
 

@@ -8,7 +8,7 @@ var workTimerModule = configuration.Create();
 
 var parsedInput = ParsedInput.Parse(args);
 
-var runId = await workTimerModule.AddTimerRun(parsedInput.Labels);
+var runId = await workTimerModule.AddTimerRun(parsedInput.TimeLeft, parsedInput.Labels);
 
 var countdownTimer = workTimerModule.GetCountdownTimer(parsedInput.TimeLeft);
 
