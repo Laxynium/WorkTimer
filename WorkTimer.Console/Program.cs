@@ -6,15 +6,26 @@ using WorkTimer.Console;
 var configuration = new WorkTimerModuleConfiguration();
 var workTimerModule = configuration.Create();
 
-await workTimerModule.AddTimerRun();
-
 var timeInMinutes = 90;
 if (args.Length >= 1)
 {
     timeInMinutes = Convert.ToInt32(args[0]);
 }
 
-var timeLeft = TimeLeft.FromSeconds(3);
+IReadOnlyDictionary<string, string> labels = new Dictionary<string, string>();
+if (args.Length >= 2)
+{
+    labels = new Dictionary<string, string>(args.Skip(1)
+        .Select(x =>
+        {
+            var split = x.Split("=");
+            return new KeyValuePair<string, string>(split[0], split[1]);
+        }));
+}
+
+await workTimerModule.AddTimerRun(labels);
+
+var timeLeft = TimeLeft.FromSeconds(timeInMinutes * 60);
 var countdownTimer = workTimerModule.GetCountdownTimer(timeLeft);
 
 var counterView = AnsiConsole
