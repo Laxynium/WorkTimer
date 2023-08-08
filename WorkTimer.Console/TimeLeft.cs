@@ -68,10 +68,11 @@ public class TimeLeft : ValueObject
     public override string ToString()
     {
         var hours = _value / (60 * 60);
-        var minutes = _value / 60 % 60;
-        var seconds = _value % 60;
+        var remainingSeconds = _value % 3600;
+        var minutes = remainingSeconds / 60;
+        var seconds = remainingSeconds % 60;
 
-        var hoursFormat = hours == 0  ? string.Empty : $"{hours:D2}:";
+        var hoursFormat = hours == 0 ? string.Empty : $"{hours:D2}:";
         var minutesFormat = hours == 0 && minutes == 0 ? string.Empty : $"{minutes:D2}:";
 
         return $"{hoursFormat}{minutesFormat}{seconds:D2}s";
