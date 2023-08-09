@@ -1,4 +1,5 @@
 ﻿using System.IO.Abstractions;
+using Spectre.Console;
 
 namespace WorkTimer.Console;
 
@@ -13,11 +14,19 @@ public class ScriptsHooks
 
     public Task InvokePreHooks(TimerRun timerRun) =>
         RunScripts(timerRun, "hooks/pre",
-            (file, ex) => { System.Console.WriteLine($"Failed to run a pre hook script {file.Name}"); });
+            (file, ex) =>
+            {
+                System.Console.WriteLine($"Failed to run a pre hook script {file.Name}");
+                AnsiConsole.WriteException(ex);
+            });
 
     public Task InvokePostHooks(TimerRun timerRun) =>
         RunScripts(timerRun, "hooks/post",
-            (file, ex) => { System.Console.WriteLine($"Failed to run a post hook script {file.Name}"); });
+            (file, ex) =>
+            {
+                System.Console.WriteLine($"Failed to run a post hook script {file.Name}");
+                AnsiConsole.WriteException(ex);
+            });
 
     private async Task RunScripts(TimerRun timerRun, string location, Action<IFileInfo, Exception> onScriptError)
     {
@@ -33,7 +42,8 @@ public class ScriptsHooks
             try
             {
                 await SimpleExec.Command.RunAsync("pwsh",
-                    new[] { "-File", script.FullName, "-TimerRun", serialized });
+                    new[] { "-File", script.FullName, "-TimerRun", serialized },
+                    noEcho: true);
             }
             catch (Exception e)
             {
