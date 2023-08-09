@@ -1,4 +1,6 @@
 ﻿using System.IO.Abstractions;
+using Medallion.Threading;
+using Medallion.Threading.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NodaTime;
@@ -22,6 +24,14 @@ public class WorkTimerModuleConfiguration
             fs.Directory.SetCurrentDirectory(AppHomeDirectory);
             return fs;
         }));
+        _services.TryAddSingleton<AsyncLazy<IDistributedLockProvider>>(sp => new AsyncLazy<IDistributedLockProvider>(
+            async () =>
+            {
+                var lazyFs = sp.GetRequiredService<AsyncLazy<IFileSystem>>();
+                var fs = await lazyFs.Value;
+                return new FileDistributedSynchronizationProvider(
+                    new DirectoryInfo(fs.Directory.GetCurrentDirectory()));
+            }));
         _services.AddSingleton<IClock>(SystemClock.Instance);
         _services.AddSingleton<TimerRunsStore>();
         _services.AddSingleton<WorkTimerModule>();

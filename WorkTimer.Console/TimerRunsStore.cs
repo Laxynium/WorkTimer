@@ -1,4 +1,5 @@
 ﻿using System.IO.Abstractions;
+using Medallion.Threading;
 
 namespace WorkTimer.Console;
 
@@ -6,14 +7,18 @@ public class TimerRunsStore
 {
     private const string FileName = "workTimerRuns.json";
     private readonly AsyncLazy<IFileSystem> _fileSystem;
+    private readonly AsyncLazy<IDistributedLockProvider> _lockProvider;
 
-    public TimerRunsStore(AsyncLazy<IFileSystem> fileSystem)
+    public TimerRunsStore(AsyncLazy<IFileSystem> fileSystem, AsyncLazy<IDistributedLockProvider> lockProvider)
     {
         _fileSystem = fileSystem;
+        _lockProvider = lockProvider;
     }
 
     public async Task<TimerRun> GetById(Guid id)
     {
+        await using var _ = await (await _lockProvider.Value).AcquireLockAsync(FileName, TimeSpan.FromSeconds(60));
+
         await MakeSureStorageFileIsCreated();
 
         var content = await ReadFileContent();
@@ -23,6 +28,8 @@ public class TimerRunsStore
 
     public async Task Add(TimerRun timerRun)
     {
+        await using var _ = await (await _lockProvider.Value).AcquireLockAsync(FileName, TimeSpan.FromSeconds(60));
+
         await MakeSureStorageFileIsCreated();
 
         var runs = await ReadFileContent();
@@ -34,6 +41,8 @@ public class TimerRunsStore
 
     public async Task Update(TimerRun timerRun)
     {
+        await using var _ = await (await _lockProvider.Value).AcquireLockAsync(FileName, TimeSpan.FromSeconds(60));
+
         await MakeSureStorageFileIsCreated();
 
         var runs = await ReadFileContent();
@@ -51,7 +60,7 @@ public class TimerRunsStore
         await WriteFileContent(runs);
     }
 
-    private Task MakeSureStorageFileIsCreated() => Run(async fs =>
+    private Task MakeSureStorageFileIsCreated() => Run(async (fs) =>
     {
         if (fs.File.Exists(FileName))
         {
@@ -61,14 +70,14 @@ public class TimerRunsStore
         await WriteFileContent(new TimerRuns());
     });
 
-    private Task<TimerRuns> ReadFileContent() => Run(async fs =>
+    private Task<TimerRuns> ReadFileContent() => Run(async (fs) =>
     {
         await using var readStream = fs.File.OpenRead(FileName);
         var result = await WorkTimerJsonSerializer.DeserializeAsync<TimerRuns>(readStream);
         return result!;
     });
 
-    private Task WriteFileContent(TimerRuns content) => Run(async fs =>
+    private Task WriteFileContent(TimerRuns content) => Run(async (fs) =>
     {
         await using var writeStream = fs.File.Create(FileName);
         await WorkTimerJsonSerializer.SerializeAsync(writeStream, content);
