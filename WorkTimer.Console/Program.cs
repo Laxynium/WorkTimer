@@ -37,7 +37,7 @@ AnsiConsole.Write(new FigletText("Good job for your hard and dedicated work").Ce
 try
 {
     var (moduleName, _) = await Command.ReadAsync("pwsh",
-        new[] { "-c", "Get-InstalledModule -Name BurntToast | %{$_.Name}" },
+        new[] { "-c", "'Get-InstalledModule -Name BurntToast | %{$_.Name}'" },
         handleExitCode: x => { return true; });
 
     if (!string.IsNullOrWhiteSpace(moduleName))
