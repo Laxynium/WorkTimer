@@ -6,6 +6,7 @@ namespace WorkTimer.Console;
 
 public class TimeLeft : ValueObject
 {
+    public static readonly TimeLeft Zero = new(0);
     private readonly int _value;
 
     private TimeLeft(int value)
