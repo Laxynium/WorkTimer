@@ -1,5 +1,4 @@
-﻿using System.Reactive.Concurrency;
-using System.Reactive.Linq;
+﻿using System.Reactive.Linq;
 using NodaTime;
 
 namespace WorkTimer.Console;
@@ -17,7 +16,19 @@ public class WorkTimerModule
         _scriptsesHooks = scriptsesHooks;
     }
 
-    public async Task<Guid> AddTimerRun(TimeLeft timeLeft, IReadOnlyDictionary<string, string>? labels = null)
+    public async Task RunAsync(TimeLeft timeLeft, IReadOnlyDictionary<string, string> labels,
+        IObservable<bool> timerControl, Action<(TimeLeft timeLeft, bool isRunning)> updateUi)
+    {
+        var runId = await AddTimerRun(timeLeft, labels);
+
+        var countdownTimer = GetCountdownTimer(timeLeft, timerControl);
+
+        await countdownTimer.ForEachAsync(updateUi);
+
+        await CompleteTimerRun(runId);
+    }
+
+    private async Task<Guid> AddTimerRun(TimeLeft timeLeft, IReadOnlyDictionary<string, string>? labels = null)
     {
         labels ??= new Dictionary<string, string>();
 
@@ -32,7 +43,7 @@ public class WorkTimerModule
         return run.Id;
     }
 
-    public async Task CompleteTimerRun(Guid id)
+    private async Task CompleteTimerRun(Guid id)
     {
         var run = await _store.GetById(id);
 
@@ -45,13 +56,29 @@ public class WorkTimerModule
         await _scriptsesHooks.InvokePostHooks(run);
     }
 
-    public IObservable<TimeLeft> GetCountdownTimer(TimeLeft timeLeft)
+    private static IObservable<(TimeLeft timeLeft, bool isRunning)> GetCountdownTimer(TimeLeft timeLeft,
+        IObservable<bool> timerControlStream)
     {
-        var countdownTimer = Observable
-            .Timer(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1))
-            .Take(timeLeft.InSeconds + 1)
-            .Select(timeLeft.SubtractSeconds)
-            .ObserveOn(Scheduler.Default);
-        return countdownTimer;
+        var period = TimeSpan.FromSeconds(1);
+
+        var result = timerControlStream
+            .StartWith(true)
+            .Select(x => x
+                ? Observable.Timer(DateTimeOffset.UtcNow, period)
+                    .Select(_ => "TICK")
+                    .StartWith("START")
+                : Observable.Never<string>()
+                    .StartWith("STOP"))
+            .Switch()
+            .Scan((timeLeft: timeLeft.IncrementBySecond(), isRunning: true), (acc, @event) => @event switch
+            {
+                "START" => (acc.timeLeft, true),
+                "STOP" => (acc.timeLeft, false),
+                "TICK" => (acc.timeLeft.SubtractSeconds(1), acc.isRunning),
+                _ => throw new ArgumentOutOfRangeException(nameof(@event), @event, null)
+            })
+            .Skip(1)
+            .TakeUntil(x => x.timeLeft == TimeLeft.Zero);
+        return result;
     }
 }

@@ -62,6 +62,7 @@ public class TimeLeft : ValueObject
     public Duration AsDuration => Duration.FromSeconds(InSeconds);
 
     public TimeLeft SubtractSeconds(long seconds) => FromSeconds(InSeconds - (int)seconds);
+    public TimeLeft IncrementBySecond() => FromSeconds(InSeconds + 1);
 
     protected override IEnumerable<IComparable> GetEqualityComponents()
     {
